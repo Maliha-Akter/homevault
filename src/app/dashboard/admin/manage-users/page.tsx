@@ -33,7 +33,7 @@ export default function ManageUsersPage() {
                             <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-slate-400">Name</th>
                             <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-slate-400">Email</th>
                             <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-slate-400">Role</th>
-                            <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-slate-400">Status</th>
+                            {/* <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-slate-400">Status</th> */}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -46,7 +46,7 @@ export default function ManageUsersPage() {
                                         {user.role}
                                     </span>
                                 </td>
-                                <td className="p-4">
+                                {/* <td className="p-4">
                                     <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${
                                         user.emailVerified 
                                         ? 'bg-orange-100 text-orange-700' 
@@ -54,7 +54,7 @@ export default function ManageUsersPage() {
                                     }`}>
                                         {user.emailVerified ? "Verified" : "Pending"}
                                     </span>
-                                </td>
+                                </td> */}
                             </tr>
                         ))}
                     </tbody>

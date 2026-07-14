@@ -22,7 +22,7 @@ export default function Sidebar() {
             href: isAdmin ? '/dashboard/admin' : '/dashboard/user',
             icon: <LayoutDashboard className="w-5 h-5" />
         },
-        { label: 'My Inventory', href: '/dashboard/user/view-inventory', icon: <Box className="w-5 h-5" /> },
+        { label: 'My Inventory', href: isAdmin ? '/dashboard/admin/view-inventory':'/dashboard/user/view-inventory', icon: <Box className="w-5 h-5" /> },
         { label: 'Categories', href: '/dashboard/categories', icon: <Compass className="w-5 h-5" /> },
     ];
 
@@ -38,6 +38,7 @@ export default function Sidebar() {
             href: '/dashboard/admin/manage-users', // Point this directly to your add-category page
             icon: <Users className="w-5 h-5" />
         });
+        
     }
 
     // 3. Add regular trailing layout items
