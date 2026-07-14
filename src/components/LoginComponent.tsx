@@ -34,8 +34,23 @@ export default function LoginComponent() {
                 toast.error(error.message || "Login failed.");
             } else {
                 toast.success("Welcome back!");
-                router.push(callbackUrl);
-                router.refresh();
+
+                // 1. Fetch the active session instance that was just generated
+                const sessionResult = await authClient.getSession();
+                const userRole = sessionResult?.data?.user?.role;
+
+                // 2. Clear routing destination logic
+                let targetDestination = callbackUrl;
+
+                // If they logged in without a deep link and they are an admin, skip "/" entirely
+                if (callbackUrl === "/" && userRole === "admin") {
+                    targetDestination = "/dashboard/admin";
+                } else if (callbackUrl === "/" && userRole === "user") {
+                    targetDestination = "/dashboard/user";
+                }
+
+                // 3. Perform a clean hard navigation to completely wipe routing cache
+                window.location.href = targetDestination;
             }
         } catch (err) {
             toast.error("An unexpected error occurred.");

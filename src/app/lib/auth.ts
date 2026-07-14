@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { jwt } from "better-auth/plugins"; // Imported safely from its sub-module path
 import { MongoClient, Db } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 
@@ -14,10 +15,8 @@ const client: MongoClient = new MongoClient(mongoUri);
 const db: Db = client.db(authDbName);
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    client,
-  }),
-
+  database: mongodbAdapter(db),
+  
   emailAndPassword: {
     enabled: true,
   },
@@ -26,16 +25,29 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: 'string',
-        defaultValue: 'user', // Defaults automatically if not specified during registration
+        defaultValue: 'user', 
         input: true,
       },
     },
   },
+  
+  session: {
+    // cookieCache: {
+    //   enabled: true,
+    // },
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24, // 1 day in seconds
+  },
+  
+  plugins: [jwt()],
 });
 
-// ✅ Explicit TypeScript declaration so Next.js apps recognize user.role fields
+// ✅ Correct module augmentation for both User and Session layout objects
 declare module "better-auth" {
   interface User {
     role: string;
+  }
+  interface Session {
+    user: User;
   }
 }

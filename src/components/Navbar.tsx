@@ -20,6 +20,7 @@ export default function Navbar() {
     const { data: session, isPending } = authClient.useSession();
     const user = session?.user;
     const isLoggedIn = !!user;
+    const isAdmin = user?.role === "admin";
 
     // Handle clicking outside to close menus cleanly
     useEffect(() => {
@@ -43,12 +44,14 @@ export default function Navbar() {
         { label: 'Blog', href: '/blog' },
         { label: 'Contact', href: '/contact' },
     ];
+
     const loggedInLinks = [
         { label: 'Home', href: '/' },
-        // { label: 'My Inventory', href: '/inventory', icon: <Box className="w-4 h-4 mr-1.5" /> },
-        // { label: 'Categories', href: '/categories', icon: <Compass className="w-4 h-4 mr-1.5" /> },
-        // { label: 'Add Categories', href: '/categories/add', icon: <PlusCircle className="w-4 h-4 mr-1.5" /> },
-        { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4 mr-1.5" /> },
+        { 
+            label: 'Dashboard', 
+            href: isAdmin ? '/dashboard/admin' : '/dashboard/user', 
+            icon: <LayoutDashboard className="w-4 h-4 mr-1.5" /> 
+        },
         { label: 'Profile', href: '/profile', icon: <User className="w-4 h-4 mr-1.5" /> },
     ];
 
@@ -135,7 +138,9 @@ export default function Navbar() {
                                     <div className="absolute right-0 top-12 mt-2 w-52 rounded-xl shadow-xl py-1 bg-white ring-1 ring-black/5 z-50 border border-slate-100 overflow-hidden">
                                         <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
                                             <p className="text-sm font-bold text-slate-800 truncate">{user?.name}</p>
-                                            <p className="text-xs text-slate-500 truncate mt-0.5">{user?.email}</p>
+                                            <p className="text-xs text-slate-500 truncate mt-0.5">
+                                                {user?.email} <span className="text-[10px] text-orange-500 font-bold uppercase ml-1">({user?.role})</span>
+                                            </p>
                                         </div>
                                         <button
                                             onClick={handleLogout}

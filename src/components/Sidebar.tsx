@@ -3,24 +3,45 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box, Compass, PlusCircle, LayoutDashboard, User, LogOut, Loader2 } from 'lucide-react';
+import { Box, Compass, PlusCircle, LayoutDashboard, User, LogOut, Loader2, Users } from 'lucide-react';
 import { authClient } from '@/app/lib/auth-client';
 import { toast } from 'react-toastify';
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    
+
     const { data: session } = authClient.useSession();
     const user = session?.user;
+    const isAdmin = user?.role === "admin";
 
+    // 1. Base links visible to all authenticated users
     const sidebarLinks = [
-        { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-        { label: 'My Inventory', href: '/inventory', icon: <Box className="w-5 h-5" /> },
-        { label: 'Categories', href: '/categories', icon: <Compass className="w-5 h-5" /> },
-        { label: 'Add Categories', href: '/categories/add', icon: <PlusCircle className="w-5 h-5" /> },
-        { label: 'Profile', href: '/profile', icon: <User className="w-5 h-5" /> },
+        {
+            label: 'Dashboard',
+            href: isAdmin ? '/dashboard/admin' : '/dashboard/user',
+            icon: <LayoutDashboard className="w-5 h-5" />
+        },
+        { label: 'My Inventory', href: '/dashboard/user/view-inventory', icon: <Box className="w-5 h-5" /> },
+        { label: 'Categories', href: '/dashboard/categories', icon: <Compass className="w-5 h-5" /> },
     ];
+
+    // 2. Conditionally insert "Add Categories" ONLY if user is verified as an admin
+    if (isAdmin) {
+        sidebarLinks.push({
+            label: 'Add Categories',
+            href: '/dashboard/add-categories', // Point this directly to your add-category page
+            icon: <PlusCircle className="w-5 h-5" />
+        });
+        sidebarLinks.push({
+            label: 'Manage Users',
+            href: '/dashboard/admin/manage-users', // Point this directly to your add-category page
+            icon: <Users className="w-5 h-5" />
+        });
+    }
+
+    // 3. Add regular trailing layout items
+    sidebarLinks.push({ label: 'Profile', href: '/dashboard/profile', icon: <User className="w-5 h-5" /> });
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
@@ -61,8 +82,8 @@ export default function Sidebar() {
                                 key={link.label}
                                 href={link.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                                    isActive 
-                                        ? "bg-orange-500 text-white font-semibold shadow-md shadow-orange-500/10" 
+                                    isActive
+                                        ? "bg-orange-500 text-white font-semibold shadow-md shadow-orange-500/10"
                                         : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                                 }`}
                             >
