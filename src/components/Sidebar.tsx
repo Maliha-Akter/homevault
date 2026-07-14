@@ -42,6 +42,7 @@ export default function Sidebar() {
 
     // 3. Add regular trailing layout items
     sidebarLinks.push({ label: 'Profile', href: '/dashboard/profile', icon: <User className="w-5 h-5" /> });
+    sidebarLinks.push({ label: 'Add Inventory', href: '/dashboard/add-inventory', icon: <User className="w-5 h-5" /> });
 
     const handleLogout = async () => {
         setIsLoggingOut(true);

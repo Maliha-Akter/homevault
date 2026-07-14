@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Card, Button, Input, Avatar, Spinner } from "@heroui/react";
-import { User, Mail, Calendar, Shield, Edit3, Save, X } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Card, Button, Input, Spinner } from "@heroui/react";
+import { User, Mail, Calendar, Shield, Edit3, Save, X, Upload, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { authClient } from "@/app/lib/auth-client";
 
@@ -17,17 +17,17 @@ interface UserProfile {
 }
 
 export default function UserProfilePage() {
-    // Better-Auth hooks handle reactive session tracking automatically
     const { data: session, isPending: sessionLoading } = authClient.useSession();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         image: ""
     });
 
-    // Populate local form state when the session resolves
     useEffect(() => {
         if (session?.user) {
             setFormData({
@@ -42,33 +42,58 @@ export default function UserProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
+    // Implemented File Upload Logic
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    try {
-        // Use Better Auth's built-in client method.
-        // This talks directly to your auth backend (not your Express API routes),
-        // completely avoiding the bloated header issue.
-        const res = await authClient.updateUser({
-            name: formData.name,
-            image: formData.image,
-        });
+        setIsUploading(true);
+        const uploadData = new FormData();
+        uploadData.append("image", file);
 
-        if (res.error) {
-            throw new Error(res.error.message || "Failed to update profile.");
+        try {
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: uploadData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                setFormData(prev => ({ ...prev, image: data.data.url }));
+                toast.success("Profile image uploaded!");
+            } else {
+                throw new Error(data.message || "Upload failed");
+            }
+        } catch (err: any) {
+            toast.error(err.message || "Failed to upload image.");
+        } finally {
+            setIsUploading(false);
         }
+    };
 
-        toast.success("Profile updated successfully!");
-        setIsEditing(false);
-        // Better Auth automatically refreshes the session/data
-    } catch (err: any) {
-        console.error("Profile Update Error:", err);
-        toast.error(err.message || "Something went wrong.");
-    } finally {
-        setIsSaving(false);
-    }
-};
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+
+        try {
+            const res = await authClient.updateUser({
+                name: formData.name,
+                image: formData.image,
+            });
+
+            if (res.error) {
+                throw new Error(res.error.message || "Failed to update profile.");
+            }
+
+            toast.success("Profile updated successfully!");
+            setIsEditing(false);
+        } catch (err: any) {
+            console.error("Profile Update Error:", err);
+            toast.error(err.message || "Something went wrong.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     if (sessionLoading) {
         return (
@@ -94,22 +119,18 @@ export default function UserProfilePage() {
                 <div className="absolute top-0 left-0 right-0 h-2.5 bg-gradient-to-r from-orange-500 to-amber-500" />
 
                 <div className="flex flex-col sm:flex-row items-center gap-5 pb-6 border-b border-slate-100 mb-6">
-                    {/* Custom Styled Avatar Wrapper to bypass framework image-loading issues */}
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-orange-500/20 ring-4 ring-orange-500/10 shadow-sm shrink-0 bg-slate-100 flex items-center justify-center">
-                        {(isEditing ? formData.image : user.image) ? (
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-orange-500/20 ring-4 ring-orange-500/10 shadow-sm shrink-0 bg-slate-100 flex items-center justify-center relative">
+                        {isUploading ? (
+                            <Loader2 className="animate-spin text-orange-500" />
+                        ) : (
                             <img
-                                src={isEditing ? formData.image : user.image}
+                                src={formData.image || user.image}
                                 alt="User Avatar"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                    // Fallback to a clean UI placeholder if the URL fails to load
                                     e.currentTarget.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || 'User')}`;
                                 }}
                             />
-                        ) : (
-                            <div className="text-xl font-black text-slate-400">
-                                {user.name?.charAt(0).toUpperCase() || "U"}
-                            </div>
                         )}
                     </div>
 
@@ -133,7 +154,6 @@ export default function UserProfilePage() {
 
                 <form onSubmit={handleSave} className="space-y-5">
                     <div className="grid grid-cols-1 gap-4">
-
                         <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
                                 <User size={14} className="text-slate-400" /> Full Name
@@ -151,13 +171,35 @@ export default function UserProfilePage() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                                <Shield size={14} className="text-slate-400" /> Profile Image URL
-                            </label>
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                                    <Shield size={14} className="text-slate-400" /> Profile Image URL
+                                </label>
+                                {isEditing && (
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={isUploading}
+                                        className="text-xs font-bold text-orange-500 hover:underline flex items-center gap-1"
+                                    >
+                                        {isUploading ? "Uploading..." : <><Upload size={12} /> Upload File</>}
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                            />
                             <Input
-                                isDisabled={!isEditing}
+                                isDisabled={!isEditing || isUploading}
                                 type="url"
                                 name="image"
+                                // Regex: Matches start of string, http OR https, then ://, then at least one char
+                                pattern="https?://.+"
+                                title="Please enter a valid URL starting with http:// or https://"
                                 value={formData.image}
                                 onChange={handleInputChange}
                                 className="w-full text-sm outline-none"
@@ -184,21 +226,6 @@ export default function UserProfilePage() {
                                 }
                             />
                         </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                                <Calendar size={14} className="text-slate-400" /> Account Created On
-                            </label>
-                            <Input
-                                isDisabled
-                                type="text"
-                                value={new Date(user.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric', month: 'long', day: 'numeric'
-                                })}
-                                className="w-full text-sm opacity-70 cursor-not-allowed bg-slate-50"
-                                variant="flat"
-                            />
-                        </div>
                     </div>
 
                     {isEditing && (
@@ -210,14 +237,14 @@ export default function UserProfilePage() {
                                     setIsEditing(false);
                                     setFormData({ name: user.name, image: user.image });
                                 }}
-                                className="rounded-xl font-semibold text-sm border border-slate-200 bg-white flex items-center gap-1"
+                                className="rounded-xl font-semibold text-sm border border-slate-200 bg-white"
                             >
                                 <X size={15} /> Cancel
                             </Button>
                             <Button
                                 type="submit"
                                 isLoading={isSaving}
-                                className="rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10 px-6 flex items-center gap-1"
+                                className="rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md px-6"
                             >
                                 <Save size={15} /> Save Changes
                             </Button>

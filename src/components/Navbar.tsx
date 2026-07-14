@@ -47,6 +47,7 @@ export default function Navbar() {
 
     const loggedInLinks = [
         { label: 'Home', href: '/' },
+        { label: 'Explore Categories', href: '/categories' },
         { 
             label: 'Dashboard', 
             href: isAdmin ? '/dashboard/admin' : '/dashboard/user', 

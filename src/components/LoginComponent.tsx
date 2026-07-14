@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, Button, Link, TextField, Label, InputGroup, Input } from "@heroui/react";
 import { Eye, EyeOff, AtSign, Lock } from "lucide-react";
-import { signIn, authClient } from "@/app/lib/auth-client";
+import { authClient } from "@/app/lib/auth-client";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
@@ -11,7 +11,9 @@ import { FcGoogle } from "react-icons/fc";
 export default function LoginComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+    // Get the callbackUrl from search params, default to dashboard if none
+    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -35,21 +37,22 @@ export default function LoginComponent() {
             } else {
                 toast.success("Welcome back!");
 
-                // 1. Fetch the active session instance that was just generated
+                // 1. Fetch the active session instance
                 const sessionResult = await authClient.getSession();
                 const userRole = sessionResult?.data?.user?.role;
 
-                // 2. Clear routing destination logic
+                // 2. Determine target destination
                 let targetDestination = callbackUrl;
 
-                // If they logged in without a deep link and they are an admin, skip "/" entirely
-                if (callbackUrl === "/" && userRole === "admin") {
-                    targetDestination = "/dashboard/admin";
-                } else if (callbackUrl === "/" && userRole === "user") {
-                    targetDestination = "/dashboard/user";
+                if (callbackUrl === "/dashboard" || callbackUrl === "/") {
+                    if (userRole === "admin") {
+                        targetDestination = "/dashboard/admin";
+                    } else if (userRole === "user") {
+                        targetDestination = "/dashboard/user";
+                    }
                 }
 
-                // 3. Perform a clean hard navigation to completely wipe routing cache
+                // 3. Perform a clean hard navigation
                 window.location.href = targetDestination;
             }
         } catch (err) {
@@ -63,7 +66,8 @@ export default function LoginComponent() {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: window.location.origin + callbackUrl,
+                // For social login, we use window.location.origin to ensure it's a full URL
+                callbackURL: `${window.location.origin}${callbackUrl}`,
             });
         } catch (err) {
             toast.error("Failed to authenticate with Google.");

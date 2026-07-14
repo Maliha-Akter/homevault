@@ -11,7 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 export default function RegisterComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     // Captures where the user originally came from, defaults to home page
     const callbackUrl = searchParams.get("callbackUrl") || "/";
 
@@ -31,7 +31,7 @@ export default function RegisterComponent() {
     // Form validation
     const validateForm = () => {
         let newErrors: Record<string, string> = {};
-        
+
         if (name.length < 2) newErrors.name = "Name must be at least 2 characters.";
         if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email address.";
 
@@ -170,11 +170,14 @@ export default function RegisterComponent() {
                         <ImageIcon className="text-zinc-500" size={16} />
                         <Input
                             placeholder="https://example.com/avatar.png"
-                            // ✅ FIXED: Displays the file name cleanly or falls back to URL input tracking state
+                            // ✅ Added validation patterns to prevent data URIs
+                            type="url"
+                            pattern="https?://.+"
+                            title="Please enter a valid URL starting with http:// or https://"
                             value={fileName || image}
                             onChange={(e) => {
                                 setImage(e.target.value);
-                                if (fileName) setFileName(""); 
+                                if (fileName) setFileName("");
                             }}
                             className="w-full bg-transparent py-2 text-sm text-white outline-none"
                         />
