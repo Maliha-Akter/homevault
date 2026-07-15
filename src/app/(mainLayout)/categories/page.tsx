@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, SlidersHorizontal, Package, Edit2, ChevronLeft, ChevronRight, Calendar, ArrowUpDown } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { toast } from "react-toastify";
@@ -29,23 +29,25 @@ export default function CategoriesPage() {
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [timeFrame, setTimeFrame] = useState("all");
-    const [sortBy, setSortBy] = useState("newest"); // Added Sort State
+    const [sortBy, setSortBy] = useState("newest");
     const [isLoading, setIsLoading] = useState(true);
 
-    // Pagination States
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    // Fetch all unique category names once on mount for the top filtering bar
+    // 👈 Added Ref to keep track of active network requests
+    const abortControllerRef = useRef<AbortController | null>(null);
+
     useEffect(() => {
         const fetchInitialNames = async () => {
             try {
-                const res = await fetch(`${baseUrl}/api/categories?limit=all`);
+                const res = await fetch(`${baseUrl}/api/categories?limit=all`, {
+                    cache: 'no-store' // 👈 Added frontend cache bypass
+                });
                 const data = await res.json();
                 if (data.success) {
-                    // Deduplicate and filter out empty names
                     const names: string[] = Array.from(
                         new Set(data.data.map((cat: Category) => cat.name).filter(Boolean))
                     ) as string[];
@@ -60,17 +62,30 @@ export default function CategoriesPage() {
 
     const fetchFilteredCategories = async () => {
         setIsLoading(true);
+
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         try {
             const queryParams = new URLSearchParams({
                 search: search.trim(),
                 categoryName: selectedCategory,
                 timeFrame: timeFrame,
-                sortBy: sortBy, // Added to query
+                sortBy: sortBy,
                 page: page.toString(),
-                limit: "9"
+                limit: "9",
+                timestamp: Date.now().toString() // 👈 ADD THIS BACK: The ultimate cache killer
             });
 
-            const res = await fetch(`${baseUrl}/api/categories?${queryParams}`);
+            const res = await fetch(`${baseUrl}/api/categories?${queryParams}`, {
+                cache: 'no-store',
+                signal: controller.signal
+            });
+
             const data = await res.json();
 
             if (data.success) {
@@ -79,7 +94,11 @@ export default function CategoriesPage() {
             } else {
                 toast.error(data.message || "Failed to load categories.");
             }
-        } catch (err) {
+        } catch (err: any) {
+            // 👈 If the error was just us cancelling the request, ignore it
+            if (err.name === "AbortError") {
+                return;
+            }
             console.error("Error fetching data:", err);
             toast.error("Network error connecting to backend.");
         } finally {
@@ -87,14 +106,13 @@ export default function CategoriesPage() {
         }
     };
 
-    // Debounce triggers data load when search, filter, date, sort, or page selections transition
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             fetchFilteredCategories();
         }, 300);
 
         return () => clearTimeout(delayDebounce);
-    }, [search, selectedCategory, timeFrame, sortBy, page]); // Added sortBy to dependencies
+    }, [search, selectedCategory, timeFrame, sortBy, page]);
 
     const handleSearchChange = (value: string) => {
         setSearch(value);
@@ -130,7 +148,7 @@ export default function CategoriesPage() {
 
             {/* Filter Section */}
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                
+
                 {/* Search Input */}
                 <div className="w-full md:max-w-md relative flex items-center">
                     <div className="absolute left-3.5 z-10 pointer-events-none">
@@ -147,7 +165,7 @@ export default function CategoriesPage() {
 
                 {/* Filters Group */}
                 <div className="border-t border-slate-100 pt-4 flex flex-col gap-4">
-                    
+
                     {/* Category Name Filters */}
                     <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                         <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider shrink-0 mt-2 min-w-[90px]">
@@ -158,11 +176,10 @@ export default function CategoriesPage() {
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => handleCategoryChange("all")}
-                                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
-                                    selectedCategory === "all"
-                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                        : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
-                                }`}
+                                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${selectedCategory === "all"
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                    : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                    }`}
                             >
                                 All Categories
                             </button>
@@ -171,11 +188,10 @@ export default function CategoriesPage() {
                                 <button
                                     key={name}
                                     onClick={() => handleCategoryChange(name)}
-                                    className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
-                                        selectedCategory === name
-                                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                            : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
-                                    }`}
+                                    className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${selectedCategory === name
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                        : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                        }`}
                                 >
                                     {name}
                                 </button>
@@ -201,11 +217,10 @@ export default function CategoriesPage() {
                                     <button
                                         key={item.value}
                                         onClick={() => handleTimeFrameChange(item.value)}
-                                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
-                                            timeFrame === item.value
-                                                ? "bg-orange-500 text-white border-orange-500 shadow-sm"
-                                                : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
-                                        }`}
+                                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${timeFrame === item.value
+                                            ? "bg-orange-500 text-white border-orange-500 shadow-sm"
+                                            : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                            }`}
                                     >
                                         {item.label}
                                     </button>
@@ -219,7 +234,7 @@ export default function CategoriesPage() {
                                 <ArrowUpDown size={14} />
                                 Sort:
                             </span>
-                            <select 
+                            <select
                                 value={sortBy}
                                 onChange={(e) => handleSortChange(e.target.value)}
                                 className="bg-slate-50 border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 cursor-pointer"
@@ -328,11 +343,10 @@ export default function CategoriesPage() {
                                     <button
                                         key={pageNumber}
                                         onClick={() => setPage(pageNumber)}
-                                        className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${
-                                            page === pageNumber
-                                                ? "bg-slate-900 text-white border-slate-900"
-                                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                                        }`}
+                                        className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${page === pageNumber
+                                            ? "bg-slate-900 text-white border-slate-900"
+                                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                            }`}
                                     >
                                         {pageNumber}
                                     </button>
