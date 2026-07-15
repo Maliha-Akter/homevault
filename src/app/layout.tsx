@@ -5,6 +5,7 @@ import "./globals.css";
 import "react-toastify/dist/ReactToastify.css"; 
 import { ToastContainer } from "react-toastify";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar></Navbar>
         <main className="grow flex flex-col">{children}</main>
+        
         {/* 2. Note: 'richColors' is a property used by 'sonner'. For react-toastify, it won't break anything but it doesn't do anything either. */}
         <ToastContainer position="top-right" autoClose={3000} />
       </body>

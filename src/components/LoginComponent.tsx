@@ -13,7 +13,7 @@ export default function LoginComponent() {
     const searchParams = useSearchParams();
 
     // Get the callbackUrl from search params, default to dashboard if none
-    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

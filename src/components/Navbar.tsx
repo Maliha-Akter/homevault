@@ -40,9 +40,9 @@ export default function Navbar() {
     const loggedOutLinks = [
         { label: 'Home', href: '/' },
         { label: 'Explore Categories', href: '/categories' },
-        { label: 'About', href: '/about' },
-        { label: 'Blog', href: '/blog' },
-        { label: 'Contact', href: '/contact' },
+        { label: 'About Us', href: '/about' },
+        // { label: 'Blog', href: '/blog' },
+        // { label: 'Contact', href: '/contact' },
     ];
 
     const loggedInLinks = [

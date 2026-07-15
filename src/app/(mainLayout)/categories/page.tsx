@@ -106,7 +106,7 @@ export default function CategoriesPage() {
     };
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto px-4 py-6">
+        <div className="space-y-6 container mx-auto px-4 py-6">
             <div>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">Vault Categories</h1>
                 <p className="text-sm text-slate-500 mt-1">Search, organize and structure storage inventory classes.</p>
@@ -180,7 +180,7 @@ export default function CategoriesPage() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {categories.map((cat) => (
                             <Card key={cat._id} className="group overflow-hidden bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow-md transition-all flex flex-col h-full rounded-2xl">
                                 <div className="w-full aspect-video relative bg-slate-100 overflow-hidden shrink-0 border-b border-slate-100">
