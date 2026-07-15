@@ -159,7 +159,7 @@ export default function UserProfilePage() {
                                 <User size={14} className="text-slate-400" /> Full Name
                             </label>
                             <Input
-                                isDisabled={!isEditing}
+                                disabled={!isEditing}
                                 type="text"
                                 name="name"
                                 value={formData.name}
@@ -194,7 +194,7 @@ export default function UserProfilePage() {
                                 onChange={handleFileChange}
                             />
                             <Input
-                                isDisabled={!isEditing || isUploading}
+                                disabled={!isEditing || isUploading}
                                 type="url"
                                 name="image"
                                 // Regex: Matches start of string, http OR https, then ://, then at least one char
@@ -210,20 +210,21 @@ export default function UserProfilePage() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                                <Mail size={14} className="text-slate-400" /> Email Address
-                            </label>
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                                    <Mail size={14} className="text-slate-400" /> Email Address
+                                </label>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${user.emailVerified ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
+                                    {user.emailVerified ? "Verified" : "Pending"}
+                                </span>
+                            </div>
                             <Input
-                                isDisabled
+                                disabled
+                                readOnly
                                 type="email"
-                                value={user.email}
+                                defaultValue={user.email}
                                 className="w-full text-sm opacity-70 cursor-not-allowed bg-slate-50"
                                 variant="flat"
-                                endContent={
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${user.emailVerified ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
-                                        {user.emailVerified ? "Verified" : "Pending"}
-                                    </span>
-                                }
                             />
                         </div>
                     </div>

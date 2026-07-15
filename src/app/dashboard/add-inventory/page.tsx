@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, Button } from "@heroui/react";
-import { 
-    PackagePlus, Info, DollarSign, Calendar, Shield, 
-    Tag, Home, FileText, Upload, Package 
+import {
+    PackagePlus, Info, DollarSign, Calendar, Shield,
+    Tag, Home, FileText, Upload, Package
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { authClient } from '@/app/lib/auth-client';
@@ -43,9 +43,9 @@ export default function AddInventoryPage() {
                 const token = tokenResponse?.data?.token;
 
                 const res = await fetch(`${baseUrl}/api/categories`, {
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}` 
+                        Authorization: `Bearer ${token}`
                     }
                 });
                 const data = await res.json();
@@ -247,11 +247,14 @@ export default function AddInventoryPage() {
                                         name="image"
                                         value={formData.image}
                                         onChange={handleInputChange}
+                                        pattern="^https?://.*"
+                                        title="Image URL must start with http:// or https://"
                                         placeholder="https://example.com/item-preview.jpg"
                                         className="flex-1 h-10 bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm outline-none focus:border-orange-500 transition-colors"
                                     />
+
                                     <div className="w-10 h-10 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center shrink-0">
-                                        {formData.image && formData.image.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                                        {formData.image && /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp)$/i.test(formData.image) ? (
                                             <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                                         ) : (
                                             <Package size={16} className="text-slate-400" />

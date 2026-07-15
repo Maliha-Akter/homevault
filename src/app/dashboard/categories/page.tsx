@@ -122,7 +122,7 @@ export default function CategoriesPage() {
                             placeholder="Search categories by keyword..."
                             value={search}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            startContent={
+                            startcontent={
                                 <Search className="text-slate-400 mr-1" size={18} />
                             }
                             className="w-full"
