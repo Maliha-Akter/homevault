@@ -34,7 +34,7 @@ export default function CategoriesPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
     // Fetch all category names once on mount to populate the top filtering bar buttons
     useEffect(() => {

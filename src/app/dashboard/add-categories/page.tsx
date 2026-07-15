@@ -71,7 +71,7 @@ export default function AddCategoryPage() {
                 organizationTips: organizationTips.filter(t => t.trim() !== "")
             };
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/categories`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL }/api/categories`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify(payload)

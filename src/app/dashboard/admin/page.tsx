@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     const fetchAdminStats = async () => {
       try {
         setIsLoading(true);
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
         // 1. Fetch token securely from authClient
         const tokenResponse = await authClient.token();

@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // ✅ Added for client-side navigation
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
+
+// ⚠️ Make sure to create and import your Better Auth client instance
+// If you haven't created it yet, see the note below this code snippet block!
+import { authClient } from '../app/lib/auth-client'; 
 
 import assetTrackingAnim from '../animations/Home.json';
 import warrantyClockAnim from '../animations/vault-tracking.json';
@@ -69,7 +74,11 @@ const slidesData: HomeVaultSlide[] = [
 ];
 
 export default function HomeVaultBanner(): React.JSX.Element {
+    const router = useRouter(); // ✅ Initialize router
     const [currentSlide, setCurrentSlide] = useState<number>(0);
+    
+    // ✅ Read user session reactively on the client side
+    const { data: session } = authClient.useSession(); 
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -80,6 +89,17 @@ export default function HomeVaultBanner(): React.JSX.Element {
 
     const handleDotClick = (index: number): void => {
         setCurrentSlide(index);
+    };
+
+    // ✅ Dynamic Navigation Logic Handler
+    const handleCtaClick = (): void => {
+        if (!session) {
+            router.push('/auth/login');
+        } else if (session.user.role === 'admin') {
+            router.push('/dashboard/admin');
+        } else {
+            router.push('/dashboard/user');
+        }
     };
 
     return (
@@ -118,7 +138,11 @@ export default function HomeVaultBanner(): React.JSX.Element {
 
                         {/* CTA Button */}
                         <div className="pt-2">
-                            <button className={`inline-flex items-center justify-center text-[16px] active:scale-[0.99] ${slidesData[currentSlide].ctaClass}`}>
+                            {/* ✅ Added onClick handler to trigger conditional redirecting */}
+                            <button 
+                                onClick={handleCtaClick}
+                                className={`inline-flex items-center justify-center text-[16px] active:scale-[0.99] ${slidesData[currentSlide].ctaClass}`}
+                            >
                                 {slidesData[currentSlide].ctaText}
                             </button>
                         </div>

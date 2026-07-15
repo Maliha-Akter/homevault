@@ -16,7 +16,7 @@ export default function CategoryDetailsPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
             try {
                 const res = await fetch(`${baseUrl}/api/categories/${id}`);

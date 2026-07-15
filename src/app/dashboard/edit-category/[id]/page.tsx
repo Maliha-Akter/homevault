@@ -24,7 +24,7 @@ export default function EditCategoryPage() {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
     // 1. Fetch data for editing
     useEffect(() => {

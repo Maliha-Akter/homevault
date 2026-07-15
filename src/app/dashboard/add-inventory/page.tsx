@@ -38,7 +38,7 @@ export default function AddInventoryPage() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
                 const tokenResponse = await authClient.token();
                 const token = tokenResponse?.data?.token;
 
@@ -85,7 +85,7 @@ export default function AddInventoryPage() {
         setIsLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 

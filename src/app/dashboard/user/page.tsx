@@ -22,7 +22,7 @@ export default function UserDashboard() {
     useEffect(() => {
         const fetchDashboardStats = async () => {
             try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
                 // 1. Fetch the token from your auth client
                 const tokenResponse = await authClient.token();

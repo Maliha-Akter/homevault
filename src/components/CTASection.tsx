@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // ✅ Added for client-side navigation
+import { authClient } from '../app/lib/auth-client'; // ✅ Added to access the session context
 import { 
   Home, 
   Package, 
@@ -14,6 +16,20 @@ import {
 } from "lucide-react";
 
 export default function CTASection() {
+  const router = useRouter(); // ✅ Initialize router
+  const { data: session } = authClient.useSession(); // ✅ Read active user session
+
+  // ✅ Dynamic Navigation Logic Handler
+  const handleCtaClick = (): void => {
+    if (!session) {
+      router.push('/auth/login');
+    } else if (session.user.role === 'admin') {
+      router.push('/dashboard/admin');
+    } else {
+      router.push('/dashboard/user');
+    }
+  };
+
   return (
     <section className="py-20 px-4 max-w-7xl mx-auto my-12 relative overflow-hidden bg-gradient-to-br from-orange-50/60 via-white to-slate-50/80 rounded-3xl border border-slate-100">
       
@@ -104,16 +120,16 @@ export default function CTASection() {
         {/* CTA Interactive Action Row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4 w-full sm:w-auto">
           
-          {/* Get Started Button Wrapper - Featuring Animated Gradient Edge */}
-          <Link 
-            href="/auth/register" 
-            className="w-full sm:w-auto p-[2px] rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 via-slate-300 to-orange-400 animate-cta-btn shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex"
+          {/* ✅ Converted from <Link> to an interactive <button> containing your custom gradient logic */}
+          <button 
+            onClick={handleCtaClick} 
+            className="w-full sm:w-auto p-[2px] rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 via-slate-300 to-orange-400 animate-cta-btn shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex cursor-pointer layout-none border-none outline-none"
           >
             <span className="w-full bg-slate-900 text-white font-bold text-xs px-6 py-3.5 rounded-[10px] inline-flex items-center justify-center gap-2 transition-colors hover:bg-slate-850">
               Get Started
               <ArrowRight size={14} className="text-orange-400" />
             </span>
-          </Link>
+          </button>
 
           {/* Secondary Explore Categories Route Button */}
           <Link

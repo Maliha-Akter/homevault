@@ -22,7 +22,7 @@ interface PlatformStats {
 export default function StatsSection() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
 
   useEffect(() => {
     const fetchStats = async () => {

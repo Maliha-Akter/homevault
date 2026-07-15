@@ -57,7 +57,7 @@ export default function ViewInventoryPage() {
     const fetchInventory = useCallback(async () => {
         setIsLoading(true);
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
@@ -126,7 +126,7 @@ export default function ViewInventoryPage() {
         setActionLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
@@ -159,7 +159,7 @@ export default function ViewInventoryPage() {
         setActionLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
