@@ -34,7 +34,7 @@ export default function CategoriesPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     // Fetch all category names once on mount to populate the top filtering bar buttons
     useEffect(() => {
@@ -92,12 +92,12 @@ export default function CategoriesPage() {
     // Helpers to reset page sequence position upon shifting filter profiles
     const handleSearchChange = (value: string) => {
         setSearch(value);
-        setPage(1); 
+        setPage(1);
     };
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
-        setPage(1); 
+        setPage(1);
     };
 
     const RenderIcon = ({ name }: { name: string }) => {
@@ -106,7 +106,7 @@ export default function CategoriesPage() {
     };
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto px-4 py-6">
+        <div className="space-y-6 container mx-auto px-4 py-6">
             <div>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">Vault Categories</h1>
                 <p className="text-sm text-slate-500 mt-1">Search, organize and structure storage inventory classes.</p>
@@ -116,16 +116,17 @@ export default function CategoriesPage() {
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div className="flex flex-col gap-4">
                     {/* Search */}
-                    <div className="w-full md:max-w-md">
+                    <div className="w-full md:max-w-md relative flex items-center">
+                        <div className="absolute left-3 z-10 pointer-events-none">
+                            <Search className="text-slate-400" size={18} />
+                        </div>
                         <Input
                             type="text"
                             placeholder="Search categories by keyword..."
                             value={search}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            startcontent={
-                                <Search className="text-slate-400 mr-1" size={18} />
-                            }
-                            className="w-full"
+                            // We just add pl-10 here to give the text room for the absolute positioned icon
+                            className="w-full pl-10"
                         />
                     </div>
 
@@ -170,7 +171,10 @@ export default function CategoriesPage() {
             {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                        <Card key={i} className="h-72 p-4 flex flex-col justify-between space-y-3 animate-pulse border border-slate-200" />
+                        <div
+                            key={i}
+                            className="h-72 p-4 flex flex-col justify-between space-y-3 animate-pulse border border-slate-200 rounded-2xl bg-white shadow-sm"
+                        />
                     ))}
                 </div>
             ) : categories.length === 0 ? (
@@ -180,7 +184,7 @@ export default function CategoriesPage() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {categories.map((cat) => (
                             <Card key={cat._id} className="group overflow-hidden bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow-md transition-all flex flex-col h-full rounded-2xl">
                                 <div className="w-full aspect-video relative bg-slate-100 overflow-hidden shrink-0 border-b border-slate-100">
@@ -217,7 +221,7 @@ export default function CategoriesPage() {
                                     </div>
 
                                     <div className="pt-2 border-t border-slate-50 flex items-center justify-between gap-2">
-                                        {session?.user?.role === "admin" && (
+                                        {(session?.user as { role?: string })?.role === "admin" && (
                                             <Link
                                                 href={`/dashboard/edit-category/${cat._id}`}
                                                 className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition-colors"

@@ -163,7 +163,8 @@ export default function UserDashboard() {
                                     cx="50%"
                                     cy="50%"
                                     outerRadius={80}
-                                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                    /* Fix: Added default value for percent */
+                                    label={({ name, percent = 0 }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                                     labelLine={false}
                                 >
                                     {charts.itemsByCategory.map((_: any, index: number) => (
@@ -176,9 +177,6 @@ export default function UserDashboard() {
                     </div>
                 </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Chart 1: Items by Category (Pie) */}
-                
-
                 {/* Chart 2: Items by Room (Bar) */}
                 <div className="p-6 border border-slate-200/80 shadow-sm bg-white rounded-2xl flex flex-col justify-between">
                     <div className="flex items-center gap-2 text-slate-800 font-bold text-sm mb-4">

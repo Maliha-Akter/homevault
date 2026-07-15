@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Card, Button, Input, Spinner } from "@heroui/react";
-import { User, Mail, Calendar, Shield, Edit3, Save, X, Upload, Loader2 } from "lucide-react";
+import { Card, Button, Input, Spinner } from "@heroui/react"; // 💡 Removed InputGroup
+import { User, Mail, Shield, Edit3, Save, X, Upload, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { authClient } from "@/app/lib/auth-client";
 
@@ -42,7 +42,6 @@ export default function UserProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Implemented File Upload Logic
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -97,8 +96,9 @@ export default function UserProfilePage() {
 
     if (sessionLoading) {
         return (
-            <div className="flex h-[70vh] items-center justify-center">
-                <Spinner color="warning" size="lg" label="Syncing authentication state..." />
+            <div className="flex flex-col gap-3 h-[70vh] items-center justify-center">
+                <Spinner color="warning" size="lg" />
+                <span className="text-sm font-medium text-slate-500">Syncing authentication state...</span>
             </div>
         );
     }
@@ -111,7 +111,7 @@ export default function UserProfilePage() {
         );
     }
 
-    const user = session.user as UserProfile;
+    const user = session.user as unknown as UserProfile;
 
     return (
         <div className="max-w-2xl mx-auto px-4 py-10">
@@ -154,22 +154,22 @@ export default function UserProfilePage() {
 
                 <form onSubmit={handleSave} className="space-y-5">
                     <div className="grid grid-cols-1 gap-4">
+                        {/* Name Input Field */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
                                 <User size={14} className="text-slate-400" /> Full Name
                             </label>
                             <Input
-                                disabled={!isEditing}
+                                disabled={!isEditing} // Fixed: changed from isDisabled to disabled
                                 type="text"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleInputChange}
-                                className="w-full text-sm outline-none"
-                                variant="bordered"
                                 required
                             />
                         </div>
 
+                        {/* Profile Image URL Input Field */}
                         <div className="flex flex-col gap-1.5">
                             <div className="flex justify-between items-center">
                                 <label className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
@@ -194,38 +194,37 @@ export default function UserProfilePage() {
                                 onChange={handleFileChange}
                             />
                             <Input
-                                disabled={!isEditing || isUploading}
+                                disabled={!isEditing || isUploading} // Fixed: changed from isDisabled to disabled
                                 type="url"
                                 name="image"
-                                // Regex: Matches start of string, http OR https, then ://, then at least one char
                                 pattern="https?://.+"
-                                title="Please enter a valid URL starting with http:// or https://"
                                 value={formData.image}
                                 onChange={handleInputChange}
-                                className="w-full text-sm outline-none"
-                                variant="bordered"
                                 placeholder="https://example.com/avatar.jpg"
                                 required
                             />
                         </div>
 
+                        {/* Email Input Field */}
+                        {/* Email Input Field */}
                         <div className="flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
-                                <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                                    <Mail size={14} className="text-slate-400" /> Email Address
-                                </label>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${user.emailVerified ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
+                            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                                <Mail size={14} className="text-slate-400" /> Email Address
+                            </label>
+                            <div className="flex items-center gap-2 w-full">
+                                <Input
+                                    disabled
+                                    type="email"
+                                    value={user.email}
+                                    className="flex-1"
+                                />
+                                <span className={`text-[10px] font-bold px-2.5 py-2 rounded-xl shrink-0 ${user.emailVerified
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-slate-200 text-slate-600'
+                                    }`}>
                                     {user.emailVerified ? "Verified" : "Pending"}
                                 </span>
                             </div>
-                            <Input
-                                disabled
-                                readOnly
-                                type="email"
-                                defaultValue={user.email}
-                                className="w-full text-sm opacity-70 cursor-not-allowed bg-slate-50"
-                                variant="flat"
-                            />
                         </div>
                     </div>
 
@@ -233,7 +232,7 @@ export default function UserProfilePage() {
                         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
                             <Button
                                 type="button"
-                                variant="light"
+                                variant="ghost"
                                 onClick={() => {
                                     setIsEditing(false);
                                     setFormData({ name: user.name, image: user.image });
@@ -244,10 +243,11 @@ export default function UserProfilePage() {
                             </Button>
                             <Button
                                 type="submit"
-                                isLoading={isSaving}
-                                className="rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md px-6"
+                                isDisabled={isSaving}
+                                className={`flex items-center gap-2 rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md px-6 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
-                                <Save size={15} /> Save Changes
+                                {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                                {isSaving ? "Saving..." : "Save Changes"}
                             </Button>
                         </div>
                     )}

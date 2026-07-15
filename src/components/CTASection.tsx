@@ -3,16 +3,17 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // ✅ Added for client-side navigation
-import { authClient } from '../app/lib/auth-client'; // ✅ Added to access the session context
-import { 
-  Home, 
-  Package, 
-  Sofa, 
-  Laptop, 
-  Book, 
-  Car, 
-  ArrowRight, 
-  FolderOpen 
+import { authClient } from '../app/lib/auth-client';
+import { type User } from '../app/lib/auth'; // ✅ Added to access the session context
+import {
+  Home,
+  Package,
+  Sofa,
+  Laptop,
+  Book,
+  Car,
+  ArrowRight,
+  FolderOpen
 } from "lucide-react";
 
 export default function CTASection() {
@@ -23,7 +24,7 @@ export default function CTASection() {
   const handleCtaClick = (): void => {
     if (!session) {
       router.push('/auth/login');
-    } else if (session.user.role === 'admin') {
+    } else if ((session.user as User).role === 'admin') { // 👈 Change this line
       router.push('/dashboard/admin');
     } else {
       router.push('/dashboard/user');
@@ -32,9 +33,10 @@ export default function CTASection() {
 
   return (
     <section className="py-20 px-4 max-w-7xl mx-auto my-12 relative overflow-hidden bg-gradient-to-br from-orange-50/60 via-white to-slate-50/80 rounded-3xl border border-slate-100">
-      
+
       {/* Dynamic Keyframes Injection for Floating Effects & Shifting Button Borders */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes floatSmooth {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(6deg); }
@@ -97,7 +99,7 @@ export default function CTASection() {
           CORE INTERACTIVE CONTENT AREA
           ======================================================== */}
       <div className="relative z-10 max-w-3xl mx-auto text-center flex flex-col items-center gap-6 py-6">
-        
+
         {/* Dynamic Launch Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-orange-100 shadow-sm">
           <span className="text-base select-none">🏠</span>
@@ -119,10 +121,10 @@ export default function CTASection() {
 
         {/* CTA Interactive Action Row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4 w-full sm:w-auto">
-          
+
           {/* ✅ Converted from <Link> to an interactive <button> containing your custom gradient logic */}
-          <button 
-            onClick={handleCtaClick} 
+          <button
+            onClick={handleCtaClick}
             className="w-full sm:w-auto p-[2px] rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 via-slate-300 to-orange-400 animate-cta-btn shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex cursor-pointer layout-none border-none outline-none"
           >
             <span className="w-full bg-slate-900 text-white font-bold text-xs px-6 py-3.5 rounded-[10px] inline-flex items-center justify-center gap-2 transition-colors hover:bg-slate-850">

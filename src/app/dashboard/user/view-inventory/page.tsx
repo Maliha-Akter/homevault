@@ -126,7 +126,7 @@ export default function ViewInventoryPage() {
         setActionLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
@@ -159,7 +159,7 @@ export default function ViewInventoryPage() {
         setActionLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
@@ -206,10 +206,10 @@ export default function ViewInventoryPage() {
                 </div>
                 <Button
                     onClick={fetchInventory}
-                    variant="flat"
-                    className="w-full sm:w-auto bg-slate-100 font-semibold text-slate-700 rounded-xl hover:bg-slate-200 transition-colors justify-center"
-                    startContent={<RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />}
+                    variant="ghost"
+                    className="w-full sm:w-auto bg-slate-100 font-semibold text-slate-700 rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
                 >
+                    <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
                     Refresh Records
                 </Button>
             </div>
@@ -266,10 +266,13 @@ export default function ViewInventoryPage() {
                                             <div className="text-[10px] text-slate-400">Est: {Number(item.estimatedValue || 0).toLocaleString()} BDT</div>
                                         </div>
                                         <div className="flex items-center gap-1.5 shrink-0">
-                                            <Button size="sm" isIconOnly variant="flat" onClick={() => openEditMode(item)} className="bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                                            {/* Edit Button */}
+                                            <Button size="sm" isIconOnly variant="ghost" onClick={() => openEditMode(item)} className="bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors shrink-0">
                                                 <Edit3 size={15} />
                                             </Button>
-                                            <Button size="sm" isIconOnly variant="flat" onClick={() => openDeleteConfirmation(item)} className="bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors">
+
+                                            {/* Delete Button */}
+                                            <Button size="sm" isIconOnly variant="ghost" onClick={() => openDeleteConfirmation(item)} className="bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors shrink-0">
                                                 <Trash2 size={15} />
                                             </Button>
                                         </div>
@@ -332,10 +335,22 @@ export default function ViewInventoryPage() {
                                             </td>
                                             <td className="px-4 py-3.5">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <Button size="sm" isIconOnly variant="flat" onClick={() => openEditMode(item)} className="bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors shrink-0">
+                                                    <Button
+                                                        size="sm"
+                                                        isIconOnly
+                                                        variant="ghost"
+                                                        onClick={() => openEditMode(item)}
+                                                        className="bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors shrink-0"
+                                                    >
                                                         <Edit3 size={15} />
                                                     </Button>
-                                                    <Button size="sm" isIconOnly variant="flat" onClick={() => openDeleteConfirmation(item)} className="bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors shrink-0">
+                                                    <Button
+                                                        size="sm"
+                                                        isIconOnly
+                                                        variant="ghost"
+                                                        onClick={() => openDeleteConfirmation(item)}
+                                                        className="bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors shrink-0"
+                                                    >
                                                         <Trash2 size={15} />
                                                     </Button>
                                                 </div>
@@ -445,8 +460,21 @@ export default function ViewInventoryPage() {
                         </div>
 
                         <div className="px-4 sm:px-6 py-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 bg-slate-50/50">
-                            <Button type="button" variant="light" onClick={() => setIsEditOpen(false)} className="rounded-xl font-semibold text-slate-600 w-full sm:w-auto">Cancel</Button>
-                            <Button type="submit" isLoading={actionLoading} className="rounded-xl font-bold bg-orange-500 text-white shadow-sm px-5 hover:bg-orange-600 transition-colors w-full sm:w-auto">Save Document Changes</Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setIsEditOpen(false)}
+                                className="rounded-xl font-semibold text-slate-600 w-full sm:w-auto"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="rounded-xl font-bold bg-orange-500 text-white shadow-sm px-5 hover:bg-orange-600 transition-colors w-full sm:w-auto flex items-center justify-center gap-2"
+                            >
+                                {actionLoading && <RefreshCw size={14} className="animate-spin" />}
+                                {actionLoading ? "Saving Changes..." : "Save Document Changes"}
+                            </Button>
                         </div>
                     </form>
                 </div>
@@ -463,8 +491,22 @@ export default function ViewInventoryPage() {
                             Are you absolutely certain you intend to wipe <strong className="text-slate-900 font-bold">&ldquo;{selectedItem?.title}&rdquo;</strong> permanently? This process cannot be reversed.
                         </div>
                         <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 mt-6">
-                            <Button type="button" variant="light" onClick={() => setIsDeleteOpen(false)} className="rounded-xl font-semibold text-slate-600 w-full sm:w-auto">Keep Asset</Button>
-                            <Button type="button" isLoading={actionLoading} onClick={handleDeleteAsset} className="rounded-xl font-bold bg-rose-600 text-white shadow-sm px-5 hover:bg-rose-700 transition-colors w-full sm:w-auto">Delete Document</Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setIsDeleteOpen(false)}
+                                className="rounded-xl font-semibold text-slate-600 w-full sm:w-auto"
+                            >
+                                Keep Asset
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleDeleteAsset}
+                                className="rounded-xl font-bold bg-rose-600 text-white shadow-sm px-5 hover:bg-rose-700 transition-colors w-full sm:w-auto flex items-center justify-center gap-2"
+                            >
+                                {actionLoading && <RefreshCw size={14} className="animate-spin" />}
+                                {actionLoading ? "Deleting..." : "Delete Document"}
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -3,9 +3,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, User, Box, LayoutDashboard, Compass, PlusCircle } from 'lucide-react';
+import { Menu, X, LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react'; // Renamed User icon import to avoid name collision
 import { authClient } from '@/app/lib/auth-client';
+import { type User } from '@/app/lib/auth'; // 1. Import your custom User type
 import { toast } from 'react-toastify';
+
+// 2. Define a strict type for your Navigation links to prevent "unknown" property errors
+interface NavLink {
+    label: string;
+    href: string;
+    icon?: React.ReactNode;
+}
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -18,7 +26,9 @@ export default function Navbar() {
 
     // Live session polling from better-auth
     const { data: session, isPending } = authClient.useSession();
-    const user = session?.user;
+    
+    // 3. Cast the session user to your custom schema definition type safely
+    const user = session?.user as User | undefined;
     const isLoggedIn = !!user;
     const isAdmin = user?.role === "admin";
 
@@ -37,15 +47,14 @@ export default function Navbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const loggedOutLinks = [
+    // 4. Explicitly type the link arrays using the new NavLink interface
+    const loggedOutLinks: NavLink[] = [
         { label: 'Home', href: '/' },
         { label: 'Explore Categories', href: '/categories' },
         { label: 'About Us', href: '/about' },
-        // { label: 'Blog', href: '/blog' },
-        // { label: 'Contact', href: '/contact' },
     ];
 
-    const loggedInLinks = [
+    const loggedInLinks: NavLink[] = [
         { label: 'Home', href: '/' },
         { label: 'Explore Categories', href: '/categories' },
         { 
@@ -53,7 +62,7 @@ export default function Navbar() {
             href: isAdmin ? '/dashboard/admin' : '/dashboard/user', 
             icon: <LayoutDashboard className="w-4 h-4 mr-1.5" /> 
         },
-        { label: 'Profile', href: '/profile', icon: <User className="w-4 h-4 mr-1.5" /> },
+        { label: 'Profile', href: '/profile', icon: <UserIcon className="w-4 h-4 mr-1.5" /> },
     ];
 
     const activeLinks = isLoggedIn ? loggedInLinks : loggedOutLinks;
@@ -98,7 +107,7 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* DESKTOP Links (Visible on lg layout screens) */}
+                    {/* DESKTOP Links */}
                     <div className="hidden lg:flex space-x-8 items-center">
                         {activeLinks.map((link) => (
                             <Link
@@ -107,7 +116,8 @@ export default function Navbar() {
                                 className={`inline-flex items-center text-sm font-medium transition-colors duration-200 ${pathname === link.href ? "text-orange-600 font-semibold" : "text-slate-600 hover:text-orange-500"
                                     }`}
                             >
-                                {'icon' in link && link.icon}
+                                {/* 5. Clean interface validation check for structural icon rendering */}
+                                {link.icon}
                                 {link.label}
                             </Link>
                         ))}
@@ -121,7 +131,6 @@ export default function Navbar() {
                                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent"></span>
                             </div>
                         ) : isLoggedIn ? (
-                            /* Fixed Profile Icon Image/Fallback Dropdown Component (Visible on all viewports) */
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -130,7 +139,7 @@ export default function Navbar() {
                                     {user?.image ? (
                                         <img src={user.image} alt="User profile" className="h-full w-full object-cover" />
                                     ) : (
-                                        <User className="w-5 h-5 text-slate-500" />
+                                        <UserIcon className="w-5 h-5 text-slate-500" />
                                     )}
                                 </button>
 
@@ -153,7 +162,6 @@ export default function Navbar() {
                                 )}
                             </div>
                         ) : (
-                            /* Unauthenticated Actions (Visible on lg layouts) */
                             <div className="hidden lg:flex items-center space-x-4">
                                 <Link href="/auth/login" className="text-sm font-semibold text-slate-600 hover:text-orange-500 transition-colors px-4 py-2">
                                     Login
@@ -167,7 +175,7 @@ export default function Navbar() {
                             </div>
                         )}
 
-                        {/* Hamburger Trigger (Visible below lg break limit) */}
+                        {/* Hamburger Trigger */}
                         <div className="lg:hidden flex items-center">
                             <button
                                 onClick={() => setIsOpen(!isOpen)}
@@ -182,7 +190,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Drawer (Collapses completely on lg screen systems) */}
+            {/* Mobile Drawer */}
             {isOpen && (
                 <div className="lg:hidden bg-white/95 border-t border-slate-200/60 px-4 pt-2 pb-4 space-y-1 shadow-inner backdrop-blur-lg" ref={menuRef}>
                     {activeLinks.map((link) => (
@@ -193,7 +201,8 @@ export default function Navbar() {
                             className={`flex items-center px-3 py-2.5 rounded-lg text-base font-medium transition-all ${pathname === link.href ? "text-orange-600 bg-orange-50/50 font-semibold" : "text-slate-600 hover:text-orange-500 hover:bg-slate-50"
                                 }`}
                         >
-                            {'icon' in link && link.icon}
+                            {/* 6. Clean Interface rendering logic for mobile drawer icon states */}
+                            {link.icon}
                             {link.label}
                         </Link>
                     ))}

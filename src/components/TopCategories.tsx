@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card } from "@heroui/react";
 import { Package, ArrowRight } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import Link from 'next/link';
+import { Card } from "@heroui/react";
 
 interface Category {
     _id: string;
@@ -19,7 +19,7 @@ export default function TopCategories() {
     const [randomCategories, setRandomCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         const fetchRandomCategories = async () => {
@@ -28,7 +28,7 @@ export default function TopCategories() {
                 // Calls the dedicated custom random endpoint
                 const res = await fetch(`${baseUrl}/api/categories/random`);
                 const data = await res.json();
-                
+
                 if (data.success) {
                     setRandomCategories(data.data);
                 }
@@ -72,7 +72,13 @@ export default function TopCategories() {
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[...Array(3)].map((_, i) => (
-                        <Card key={i} className="h-72 p-4 flex flex-col justify-between space-y-3 animate-pulse border border-slate-200" />
+                        <Card
+                            key={i}
+                            className="h-72 p-4 flex flex-col justify-between space-y-3 animate-pulse border border-slate-200"
+                        >
+                            {/* Use a simple div instead of CardBody */}
+                            <div className="h-full w-full" />
+                        </Card>
                     ))}
                 </div>
             ) : randomCategories.length === 0 ? (

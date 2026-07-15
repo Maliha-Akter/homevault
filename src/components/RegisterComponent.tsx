@@ -44,6 +44,7 @@ export default function RegisterComponent() {
         return Object.keys(newErrors).length === 0;
     };
 
+
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -101,6 +102,7 @@ export default function RegisterComponent() {
 
             if (data.success) {
                 setImage(data.data.url);
+                setFileName(""); // 👈 FIX: Clear the filename so the URL takes over!
                 toast.success("File uploaded successfully!");
             } else {
                 toast.error("Upload failed");
@@ -170,11 +172,10 @@ export default function RegisterComponent() {
                         <ImageIcon className="text-zinc-500" size={16} />
                         <Input
                             placeholder="https://example.com/avatar.png"
-                            // ✅ Added validation patterns to prevent data URIs
                             type="url"
                             pattern="https?://.+"
                             title="Please enter a valid URL starting with http:// or https://"
-                            value={fileName || image}
+                            value={image || fileName} // 👈 FIX: Prioritize the uploaded URL over the filename
                             onChange={(e) => {
                                 setImage(e.target.value);
                                 if (fileName) setFileName("");
@@ -201,7 +202,8 @@ export default function RegisterComponent() {
                 <TextField isRequired name="password" className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center">
                         <Label className="text-xs font-medium text-zinc-300">Password</Label>
-                        <Link href="/auth/ForgotPassword" size="sm" className="text-[11px] text-amber-500 hover:underline">
+
+                        <Link href="/auth/ForgotPassword" className="text-[11px] text-amber-500 hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -223,9 +225,9 @@ export default function RegisterComponent() {
                 <Button
                     type="submit"
                     className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-black bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-orange-950/20 hover:opacity-95 active:scale-[0.99] transition-all"
-                    isLoading={isLoading}
+                    isDisabled={isLoading} // 👈 Change isLoading to isDisabled
                 >
-                    Register
+                    {isLoading ? "Registering..." : "Register"}
                 </Button>
             </form>
 

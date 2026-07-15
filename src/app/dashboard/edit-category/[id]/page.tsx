@@ -107,7 +107,8 @@ export default function EditCategoryPage() {
 
     return (
         <div className="max-w-2xl mx-auto space-y-6 pb-10">
-            <Button variant="flat" onPress={() => router.back()} className="text-slate-600">
+            {/* Fix 1: Changed variant="flat" to variant="ghost" */}
+            <Button variant="ghost" onPress={() => router.back()} className="text-slate-600">
                 <ArrowLeft size={16} /> Back
             </Button>
 
@@ -155,12 +156,14 @@ export default function EditCategoryPage() {
                                         <section.icon size={14} className="text-slate-400" />
                                         <Input value={val} onChange={(e) => updateField(section.setter, idx, e.target.value)} className="py-2 text-sm outline-none bg-transparent" />
                                     </InputGroup>
-                                    <Button isIconOnly variant="flat" color="danger" onClick={() => removeField(section.setter, idx)} className="h-10 w-10">
+                                    {/* Fix 2: Changed variant="flat" to variant="danger-soft" */}
+                                    <Button isIconOnly variant="danger-soft" onClick={() => removeField(section.setter, idx)} className="h-10 w-10">
                                         <Trash2 size={16} />
                                     </Button>
                                 </div>
                             ))}
-                            <Button size="sm" variant="flat" onPress={() => addField(section.setter)} className="w-fit text-xs text-orange-600">
+                            {/* Fix 3: Changed variant="flat" to variant="ghost" */}
+                            <Button size="sm" variant="ghost" onPress={() => addField(section.setter)} className="w-fit text-xs text-orange-600">
                                 <Plus size={14} /> Add {section.label}
                             </Button>
                         </div>
@@ -175,10 +178,10 @@ export default function EditCategoryPage() {
                             Update Changes
                         </Button>
 
-                        {/* Delete Button: Equal width + hover border effect */}
+                        {/* Delete Button */}
+                        {/* Fix 4: Changed variant="flat" to variant="danger-soft" */}
                         <Button
-                            color="danger"
-                            variant="flat"
+                            variant="danger-soft"
                             onPress={handleDelete}
                             className="flex-1 h-11 rounded-xl px-6 flex items-center justify-center gap-2 border-2 border-transparent hover:border-danger hover:bg-danger/10 transition-all"
                         >

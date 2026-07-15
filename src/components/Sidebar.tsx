@@ -8,13 +8,14 @@ import {
     Compass, 
     PlusCircle, 
     LayoutDashboard, 
-    User, 
+    User as UserIcon,
     LogOut, 
     Loader2, 
     Users, 
     X 
 } from 'lucide-react';
 import { authClient } from '@/app/lib/auth-client';
+import { type User } from '@/app/lib/auth';
 import { toast } from 'react-toastify';
 
 interface SidebarProps {
@@ -27,7 +28,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const { data: session } = authClient.useSession();
-    const user = session?.user;
+    const user = session?.user as User | undefined;
     const isAdmin = user?.role === "admin";
 
     // 1. Base links visible to all authenticated users
@@ -64,8 +65,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     }
 
     // 3. Add regular trailing layout items
-    sidebarLinks.push({ label: 'Profile', href: '/dashboard/profile', icon: <User className="w-5 h-5" /> });
-    sidebarLinks.push({ label: 'Add Inventory', href: '/dashboard/add-inventory', icon: <User className="w-5 h-5" /> });
+    sidebarLinks.push({ label: 'Profile', href: '/dashboard/profile', icon: <UserIcon className="w-5 h-5" /> });
+    sidebarLinks.push({ label: 'Add Inventory', href: '/dashboard/add-inventory', icon: <UserIcon className="w-5 h-5" /> });
 
     const handleLogout = async () => {
         setIsLoggingOut(true);

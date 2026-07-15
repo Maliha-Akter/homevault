@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, Button } from "@heroui/react";
 import {
@@ -10,7 +9,7 @@ import {
 import { toast } from "react-toastify";
 import { authClient } from '@/app/lib/auth-client';
 
-export default function AddInventoryPage() {
+function InventoryFormContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -38,7 +37,7 @@ export default function AddInventoryPage() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL;
                 const tokenResponse = await authClient.token();
                 const token = tokenResponse?.data?.token;
 
@@ -85,7 +84,7 @@ export default function AddInventoryPage() {
         setIsLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL;
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
@@ -329,13 +328,23 @@ export default function AddInventoryPage() {
                     </Card>
 
                     <div className="flex items-center justify-end gap-3 pt-2">
-                        <Button type="button" variant="light" onClick={() => router.back()} className="rounded-xl font-semibold text-sm border border-slate-200 bg-white">Cancel</Button>
-                        <Button type="submit" isLoading={isLoading} className="rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6">
-                            Save Asset to Vault
+                        <Button type="button" variant="outline" onPress={() => router.back()} className="rounded-xl font-semibold text-sm border border-slate-200 bg-white">Cancel</Button>
+                        
+                        <Button type="submit" isDisabled={isLoading} className="rounded-xl font-bold text-sm bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6">
+                            {isLoading ? "Saving Asset..." : "Save Asset to Vault"}
                         </Button>
                     </div>
                 </div>
             </form>
         </div>
+    );
+}
+
+export default function AddInventoryPage() {
+    return (
+        // 3. Wrap your content in Suspense
+        <Suspense fallback={<div className="p-10 text-center">Loading inventory form...</div>}>
+            <InventoryFormContent />
+        </Suspense>
     );
 }

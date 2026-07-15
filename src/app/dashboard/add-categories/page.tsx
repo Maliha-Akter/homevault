@@ -71,7 +71,7 @@ export default function AddCategoryPage() {
                 organizationTips: organizationTips.filter(t => t.trim() !== "")
             };
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL }/api/categories`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -172,19 +172,25 @@ export default function AddCategoryPage() {
                                         <Input value={val} placeholder={section.placeholder} onChange={(e) => updateField(section.setter, idx, e.target.value)} className="py-2 text-sm outline-none bg-transparent" />
                                     </InputGroup>
                                     {section.state.length > 1 && (
-                                        <Button isIconOnly variant="flat" color="danger" onClick={() => removeField(section.setter, idx)} className="h-10 w-10">
+                                        <Button
+                                            isIconOnly
+                                            variant="danger-soft" //  Use "danger" or "danger-soft" directly as the variant
+                                            onClick={() => removeField(section.setter, idx)}
+                                            className="h-10 w-10"
+                                        >
                                             <Trash2 size={16} />
                                         </Button>
                                     )}
                                 </div>
                             ))}
-                            <Button size="sm" variant="flat" onPress={() => addField(section.setter)} className="w-fit text-xs text-orange-600">
+
+                            <Button size="sm" variant="ghost" onPress={() => addField(section.setter)} className="w-fit text-xs text-orange-600">
                                 <Plus size={14} className="mr-1" /> Add {section.label}
                             </Button>
                         </div>
                     ))}
 
-                    <Button type="submit" disabled={isLoading} className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 to-amber-600 shadow-md hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+                    <Button type="submit" isDisabled={isLoading} className="w-full h-11 mt-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 to-amber-600 shadow-md hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
                         <ShieldCheck size={18} />
                         {isLoading ? "Processing..." : "Submit Proposal"}
                     </Button>

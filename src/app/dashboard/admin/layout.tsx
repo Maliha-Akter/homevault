@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
-import { auth } from '@/app/lib/auth'; // Ensure this points to your server-side auth config
+import { auth } from '@/app/lib/auth'; 
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -13,8 +13,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         headers: await headers()
     });
 
-    // 2. Clear redirect block: if not logged in OR role isn't admin, redirect cleanly
-    if (!session || session.user.role !== 'admin') {
+    // 2. Clear redirect block with a local type assertion for the role property
+    if (!session || (session.user as { role?: string }).role !== 'admin') {
         redirect('/auth/login');
     }
     

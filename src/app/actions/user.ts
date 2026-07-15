@@ -5,20 +5,28 @@ import { headers } from "next/headers";
 import { MongoClient } from "mongodb";
 
 export async function getCleanUserList() {
-    // 1. Authenticate the admin session
+    // 1. Fetch the session
     const session = await auth.api.getSession({
         headers: await headers(),
     });
 
-    if (!session || session.user.role !== "admin") {
-        throw new Error("Unauthorized access");
+    // 2. Guard Clause: Check if session exists
+    if (!session) {
+        throw new Error("Unauthorized: No session found");
     }
 
-    // 2. Connect and fetch
+
+    const user = session.user as { role: string };
+
+    // 4. Authorization check
+    if (user.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+    }
+
+    // 5. Connect and fetch
     const client = new MongoClient(process.env.MONGODB_URI!);
     const db = client.db(process.env.AUTH_DB_NAME);
-    
-    // Fetch only the data you want to display
+
     const users = await db.collection("user")
         .find({})
         .project({
@@ -30,6 +38,5 @@ export async function getCleanUserList() {
         })
         .toArray();
 
-    // Convert MongoDB _id to string for the frontend
     return JSON.parse(JSON.stringify(users));
 }

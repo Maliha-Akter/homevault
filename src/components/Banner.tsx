@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation'; // ✅ Added for client-side naviga
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 
-// ⚠️ Make sure to create and import your Better Auth client instance
-// If you haven't created it yet, see the note below this code snippet block!
-import { authClient } from '../app/lib/auth-client'; 
+import { authClient } from '../app/lib/auth-client';
+import { type User } from '../app/lib/auth'; // 👈 Add this import
 
 import assetTrackingAnim from '../animations/Home.json';
 import warrantyClockAnim from '../animations/vault-tracking.json';
@@ -76,9 +75,9 @@ const slidesData: HomeVaultSlide[] = [
 export default function HomeVaultBanner(): React.JSX.Element {
     const router = useRouter(); // ✅ Initialize router
     const [currentSlide, setCurrentSlide] = useState<number>(0);
-    
+
     // ✅ Read user session reactively on the client side
-    const { data: session } = authClient.useSession(); 
+    const { data: session } = authClient.useSession();
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -95,7 +94,7 @@ export default function HomeVaultBanner(): React.JSX.Element {
     const handleCtaClick = (): void => {
         if (!session) {
             router.push('/auth/login');
-        } else if (session.user.role === 'admin') {
+        } else if ((session.user as User).role === 'admin') { // 👈 Cast it here
             router.push('/dashboard/admin');
         } else {
             router.push('/dashboard/user');
@@ -115,7 +114,7 @@ export default function HomeVaultBanner(): React.JSX.Element {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="container mx-auto px-6 lg:px-20 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+                    className="container mx-auto px-6 lg:px-20 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-10 lg:my-0"
                 >
                     {/* Content Block */}
                     <div className={`flex flex-col justify-center space-y-6 z-10 text-center lg:text-left lg:col-span-6 ${slidesData[currentSlide].layout === 'left' ? 'lg:order-2 lg:pl-16' : 'lg:order-1 lg:pr-6'}`}>
@@ -139,7 +138,7 @@ export default function HomeVaultBanner(): React.JSX.Element {
                         {/* CTA Button */}
                         <div className="pt-2">
                             {/* ✅ Added onClick handler to trigger conditional redirecting */}
-                            <button 
+                            <button
                                 onClick={handleCtaClick}
                                 className={`inline-flex items-center justify-center text-[16px] active:scale-[0.99] ${slidesData[currentSlide].ctaClass}`}
                             >
