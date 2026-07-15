@@ -78,7 +78,7 @@ export default function Features() {
               <div className="relative w-full h-full duration-500 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] shadow-sm group-hover:shadow-xl rounded-2xl transition-all">
                 
                 {/* FRONT FACE */}
-                <div className="absolute inset-0 w-full h-full bg-white border border-slate-200/80 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 [backface-visibility:hidden] text-center">
+                <div className="absolute inset-0 w-full h-full bg-white border border-orange-400/80 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 [backface-visibility:hidden] text-center">
                   <div className="p-4 bg-slate-50 text-slate-700 rounded-2xl border border-slate-100 group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors duration-300">
                     <IconComponent className="w-8 h-8" />
                   </div>

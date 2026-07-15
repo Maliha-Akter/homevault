@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, Folder, Package, Star, Activity, 
-  CircleDot, Layers, TrendingUp, PieChart as PieIcon 
+import {
+  Users, Folder, Package, Star, Activity,
+  CircleDot, Layers, TrendingUp, PieChart as PieIcon
 } from 'lucide-react';
 import { toast } from "react-toastify";
 import { authClient } from '@/app/lib/auth-client';
-import { 
+import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  LineChart, Line 
+  LineChart, Line
 } from 'recharts';
 
 // Matching Color Palette from User Dashboard
@@ -30,7 +30,7 @@ interface DistributionData {
 }
 
 interface GrowthData {
-  month: string; 
+  month: string;
   count: number;
 }
 
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     const fetchAdminStats = async () => {
       try {
         setIsLoading(true);
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL ;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
         // 1. Fetch token securely from authClient
         const tokenResponse = await authClient.token();
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         const resJson = await response.json();
         if (resJson.success) {
           setDashboardData(resJson.data);
@@ -118,6 +118,17 @@ export default function AdminDashboard() {
   }
 
   const { cards, charts, recentActivity } = dashboardData;
+
+  // Merge duplicate categories (like "Uncategorized") directly on the frontend
+  const mergedInventoryDistribution = charts.inventoryDistribution.reduce<DistributionData[]>((acc, curr) => {
+    const existing = acc.find(item => item.name === curr.name);
+    if (existing) {
+      existing.value += curr.value; // Sum up the values
+    } else {
+      acc.push({ ...curr });
+    }
+    return acc;
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -187,7 +198,7 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={charts.inventoryDistribution}
+                  data={mergedInventoryDistribution} // <-- Changed this line
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -195,11 +206,12 @@ export default function AdminDashboard() {
                   paddingAngle={4}
                   dataKey="value"
                 >
-                  {charts.inventoryDistribution.map((_, index) => (
+                  {/* Update the cells mapping to use the merged data too */}
+                  {mergedInventoryDistribution.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value} items`, 'Count']} />
+                <Tooltip formatter={(value, name) => [`${value} items`, name]} />
                 <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '11px' }} />
               </PieChart>
             </ResponsiveContainer>
@@ -254,10 +266,9 @@ export default function AdminDashboard() {
             recentActivity.map((activity) => (
               <div key={activity.id} className="py-3.5 flex items-center justify-between first:pt-0 last:pb-0">
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    activity.type === 'user' ? 'bg-blue-50 text-blue-500' :
-                    activity.type === 'category' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
-                  }`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${activity.type === 'user' ? 'bg-blue-50 text-blue-500' :
+                      activity.type === 'category' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
+                    }`}>
                     <CircleDot size={16} />
                   </div>
                   <div>

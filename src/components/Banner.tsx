@@ -102,7 +102,7 @@ export default function HomeVaultBanner(): React.JSX.Element {
     };
 
     return (
-        <div className="relative w-full h-[650px] bg-gradient-to-br from-white via-[#FCFBF7] to-[#F3F6FA] text-slate-900 overflow-hidden flex items-center border-b border-slate-100">
+        <div className="relative w-full h-[650px] bg-gradient-to-br from-white via-[#FCFBF7] to-[#F3F6FA] text-slate-900 overflow-hidden flex items-center border-b border-slate-100 lg:my-0 my-15">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-amber-200/20 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-blue-100/30 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -120,7 +120,7 @@ export default function HomeVaultBanner(): React.JSX.Element {
                     <div className={`flex flex-col justify-center space-y-6 z-10 text-center lg:text-left lg:col-span-6 ${slidesData[currentSlide].layout === 'left' ? 'lg:order-2 lg:pl-16' : 'lg:order-1 lg:pr-6'}`}>
                         {/* Dynamic Tag */}
                         <div>
-                            <span className={`inline-block text-[11px] font-bold tracking-wider uppercase ${slidesData[currentSlide].tagClass}`}>
+                            <span className={`inline-block text-[11px] font-bold tracking-wider uppercase ${slidesData[currentSlide].tagClass} lg:mt-0 mt-28`}>
                                 {slidesData[currentSlide].tag}
                             </span>
                         </div>

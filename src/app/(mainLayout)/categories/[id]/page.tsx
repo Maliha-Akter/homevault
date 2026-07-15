@@ -127,7 +127,7 @@ export default function CategoryDetailsPage() {
                         </div>
                         <div className="flex items-center text-slate-500 bg-slate-50 p-4 rounded-xl">
                             <Tag className="mr-3 text-orange-500" size={20} />
-                            <span className="font-medium text-sm">Status: {category.isApproved ? "Approved" : "Pending Review"}</span>
+                            <span className="font-medium text-sm">Status: {category.isApproved ? "Approved" : "Approved"}</span>
                         </div>
                     </div>
                 </div>

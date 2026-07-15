@@ -63,6 +63,7 @@ export default function Navbar() {
             icon: <LayoutDashboard className="w-4 h-4 mr-1.5" /> 
         },
         { label: 'Profile', href: '/profile', icon: <UserIcon className="w-4 h-4 mr-1.5" /> },
+        { label: 'About Us', href: '/about' },
     ];
 
     const activeLinks = isLoggedIn ? loggedInLinks : loggedOutLinks;

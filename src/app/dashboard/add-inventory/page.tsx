@@ -41,7 +41,7 @@ function InventoryFormContent() {
                 const tokenResponse = await authClient.token();
                 const token = tokenResponse?.data?.token;
 
-                const res = await fetch(`${baseUrl}/api/categories`, {
+                const res = await fetch(`${baseUrl}/api/categories?limit=all`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`

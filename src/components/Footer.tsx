@@ -17,7 +17,7 @@ interface FooterProps {
   callbackUrl?: string;
 }
 
-export default function Footer({ callbackUrl = "/dashboard" }: FooterProps) {
+export default function Footer({ callbackUrl = "/" }: FooterProps) {
   const currentYear = 2026;
 
   const platformLinks = [

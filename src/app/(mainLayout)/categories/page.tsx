@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, Input } from "@heroui/react";
-import { Search, SlidersHorizontal, Package, Edit2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, Package, Edit2, ChevronLeft, ChevronRight, Calendar, ArrowUpDown } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { toast } from "react-toastify";
 import Link from 'next/link';
@@ -20,6 +19,7 @@ interface Category {
     organizationTips: string[];
     isDefault: boolean;
     isApproved: boolean;
+    createdAt?: string;
 }
 
 export default function CategoriesPage() {
@@ -28,6 +28,8 @@ export default function CategoriesPage() {
     const [categoryNames, setCategoryNames] = useState<string[]>([]);
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
+    const [timeFrame, setTimeFrame] = useState("all");
+    const [sortBy, setSortBy] = useState("newest"); // Added Sort State
     const [isLoading, setIsLoading] = useState(true);
 
     // Pagination States
@@ -36,14 +38,17 @@ export default function CategoriesPage() {
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    // Fetch all category names once on mount to populate the top filtering bar buttons
+    // Fetch all unique category names once on mount for the top filtering bar
     useEffect(() => {
         const fetchInitialNames = async () => {
             try {
                 const res = await fetch(`${baseUrl}/api/categories?limit=all`);
                 const data = await res.json();
                 if (data.success) {
-                    const names: string[] = data.data.map((cat: Category) => cat.name);
+                    // Deduplicate and filter out empty names
+                    const names: string[] = Array.from(
+                        new Set(data.data.map((cat: Category) => cat.name).filter(Boolean))
+                    ) as string[];
                     setCategoryNames(names);
                 }
             } catch (err) {
@@ -57,10 +62,12 @@ export default function CategoriesPage() {
         setIsLoading(true);
         try {
             const queryParams = new URLSearchParams({
-                search: search,
+                search: search.trim(),
                 categoryName: selectedCategory,
+                timeFrame: timeFrame,
+                sortBy: sortBy, // Added to query
                 page: page.toString(),
-                limit: "9" // Hardcoded item threshold limit per design requirement
+                limit: "9"
             });
 
             const res = await fetch(`${baseUrl}/api/categories?${queryParams}`);
@@ -74,22 +81,21 @@ export default function CategoriesPage() {
             }
         } catch (err) {
             console.error("Error fetching data:", err);
-            toast.error("Network error connecting to resource cluster backend.");
+            toast.error("Network error connecting to backend.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Debounce triggers data load when search, filter, or page selections transition
+    // Debounce triggers data load when search, filter, date, sort, or page selections transition
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             fetchFilteredCategories();
         }, 300);
 
         return () => clearTimeout(delayDebounce);
-    }, [search, selectedCategory, page]);
+    }, [search, selectedCategory, timeFrame, sortBy, page]); // Added sortBy to dependencies
 
-    // Helpers to reset page sequence position upon shifting filter profiles
     const handleSearchChange = (value: string) => {
         setSearch(value);
         setPage(1);
@@ -97,6 +103,16 @@ export default function CategoriesPage() {
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
+        setPage(1);
+    };
+
+    const handleTimeFrameChange = (frame: string) => {
+        setTimeFrame(frame);
+        setPage(1);
+    };
+
+    const handleSortChange = (value: string) => {
+        setSortBy(value);
         setPage(1);
     };
 
@@ -113,57 +129,109 @@ export default function CategoriesPage() {
             </div>
 
             {/* Filter Section */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex flex-col gap-4">
-                    {/* Search */}
-                    <div className="w-full md:max-w-md relative flex items-center">
-                        <div className="absolute left-3 z-10 pointer-events-none">
-                            <Search className="text-slate-400" size={18} />
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                
+                {/* Search Input */}
+                <div className="w-full md:max-w-md relative flex items-center">
+                    <div className="absolute left-3.5 z-10 pointer-events-none">
+                        <Search className="text-slate-400" size={18} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search categories by keyword..."
+                        value={search}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white focus:ring-1 focus:ring-orange-500/20 transition-all placeholder-slate-400 text-slate-800"
+                    />
+                </div>
+
+                {/* Filters Group */}
+                <div className="border-t border-slate-100 pt-4 flex flex-col gap-4">
+                    
+                    {/* Category Name Filters */}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                        <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider shrink-0 mt-2 min-w-[90px]">
+                            <SlidersHorizontal size={14} />
+                            Category:
+                        </span>
+
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => handleCategoryChange("all")}
+                                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
+                                    selectedCategory === "all"
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                        : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                }`}
+                            >
+                                All Categories
+                            </button>
+
+                            {categoryNames.map((name) => (
+                                <button
+                                    key={name}
+                                    onClick={() => handleCategoryChange(name)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
+                                        selectedCategory === name
+                                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                            : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                    }`}
+                                >
+                                    {name}
+                                </button>
+                            ))}
                         </div>
-                        <Input
-                            type="text"
-                            placeholder="Search categories by keyword..."
-                            value={search}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                            // We just add pl-10 here to give the text room for the absolute positioned icon
-                            className="w-full pl-10"
-                        />
                     </div>
 
-                    {/* Filters */}
-                    <div className="border-t border-slate-100 pt-3">
+                    {/* Date Created & Sort Filters */}
+                    <div className="flex flex-col md:flex-row gap-4 md:items-center">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                            <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider shrink-0 mt-2">
-                                <SlidersHorizontal size={14} />
-                                Filter By:
+                            <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider shrink-0 mt-2 min-w-[90px]">
+                                <Calendar size={14} />
+                                Created:
                             </span>
 
                             <div className="flex flex-wrap gap-2">
-                                <button
-                                    onClick={() => handleCategoryChange("all")}
-                                    className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${selectedCategory === "all"
-                                        ? "bg-slate-900 text-white"
-                                        : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                                        }`}
-                                >
-                                    All Categories
-                                </button>
-
-                                {categoryNames.map((name) => (
+                                {[
+                                    { label: "All Time", value: "all" },
+                                    { label: "Today", value: "today" },
+                                    { label: "This Week", value: "week" },
+                                    { label: "This Month", value: "month" },
+                                ].map((item) => (
                                     <button
-                                        key={name}
-                                        onClick={() => handleCategoryChange(name)}
-                                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${selectedCategory === name
-                                            ? "bg-slate-900 text-white"
-                                            : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                                            }`}
+                                        key={item.value}
+                                        onClick={() => handleTimeFrameChange(item.value)}
+                                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all whitespace-nowrap ${
+                                            timeFrame === item.value
+                                                ? "bg-orange-500 text-white border-orange-500 shadow-sm"
+                                                : "bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100"
+                                        }`}
                                     >
-                                        {name}
+                                        {item.label}
                                     </button>
                                 ))}
                             </div>
                         </div>
+
+                        {/* Sort Control */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider shrink-0 ml-0 md:ml-4">
+                                <ArrowUpDown size={14} />
+                                Sort:
+                            </span>
+                            <select 
+                                value={sortBy}
+                                onChange={(e) => handleSortChange(e.target.value)}
+                                className="bg-slate-50 border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-2 rounded-xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 cursor-pointer"
+                            >
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                            </select>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -181,12 +249,13 @@ export default function CategoriesPage() {
                 <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8">
                     <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <h3 className="text-base font-bold text-slate-800">No categories found</h3>
+                    <p className="text-xs text-slate-400 mt-1">Try adjusting your search or date filter settings.</p>
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {categories.map((cat) => (
-                            <Card key={cat._id} className="group overflow-hidden bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow-md transition-all flex flex-col h-full rounded-2xl">
+                            <div key={cat._id} className="group overflow-hidden bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow-md transition-all flex flex-col h-full rounded-2xl">
                                 <div className="w-full aspect-video relative bg-slate-100 overflow-hidden shrink-0 border-b border-slate-100">
                                     {cat.image ? (
                                         <img
@@ -238,11 +307,11 @@ export default function CategoriesPage() {
                                         </Link>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         ))}
                     </div>
 
-                    {/* Pagination Controls Footer UI Elements */}
+                    {/* Pagination Controls */}
                     {totalPages > 1 && (
                         <div className="flex items-center justify-center gap-2 pt-6 border-t border-slate-100">
                             <button
@@ -259,10 +328,11 @@ export default function CategoriesPage() {
                                     <button
                                         key={pageNumber}
                                         onClick={() => setPage(pageNumber)}
-                                        className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${page === pageNumber
-                                            ? "bg-slate-900 text-white border-slate-900"
-                                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                                            }`}
+                                        className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${
+                                            page === pageNumber
+                                                ? "bg-slate-900 text-white border-slate-900"
+                                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                        }`}
                                     >
                                         {pageNumber}
                                     </button>
