@@ -58,7 +58,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             icon: <PlusCircle className="w-5 h-5" />
         });
         sidebarLinks.push({
-            label: 'Manage Users',
+            label: 'Users Details',
             href: '/dashboard/admin/manage-users',
             icon: <Users className="w-5 h-5" />
         });
