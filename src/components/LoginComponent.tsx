@@ -66,7 +66,6 @@ export default function LoginComponent() {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                // For social login, we use window.location.origin to ensure it's a full URL
                 callbackURL: `${window.location.origin}${callbackUrl}`,
             });
         } catch (err) {
