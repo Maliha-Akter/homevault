@@ -52,6 +52,7 @@ export default function Navbar() {
         { label: 'Home', href: '/' },
         { label: 'Explore Categories', href: '/categories' },
         { label: 'About Us', href: '/about' },
+        { label: 'Contact', href: '/contact' },
     ];
 
     const loggedInLinks: NavLink[] = [

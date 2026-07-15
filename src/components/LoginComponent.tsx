@@ -96,13 +96,13 @@ export default function LoginComponent() {
             const { error } = await authClient.signIn.email({
                 email: "demo@homevault.com",
                 password: "Password123!",
-                callbackURL: "/dashboard/user",
+                callbackURL: "/",
             });
 
             if (error) {
                 toast.error("Demo login failed: " + error.message);
             } else {
-                window.location.href = "/dashboard/user";
+                window.location.href = "/";
             }
         } catch (err) {
             toast.error("An unexpected error occurred.");
